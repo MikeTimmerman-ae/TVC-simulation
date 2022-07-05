@@ -11,3 +11,10 @@
 #include <fstream>
 #include <math.h>
 #include <string>
+
+#include "include/dynamics.h"       // include src code
+
+#include <Eigen/Dense>
+#include <Eigen/SparseCore>
+
+using namespace Eigen;
