@@ -128,7 +128,7 @@ void actuator::setUpperRateLimit( int idx, const float _upperRateLimit )
 
 
 
-void actuator::actuate( VectorXf _u )
+void actuator::actuate( VectorXf& _u )
 {
     unsigned int i;
 
