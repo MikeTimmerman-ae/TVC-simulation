@@ -109,13 +109,17 @@ class dynamics
     //
 	// PRIVATE DATA MEMBER:
 	//
-
+    private:
         float samplingTime=0.01;
 
         // System properties
         unsigned int nx = 12;
         unsigned int nu = 3;
-        unsigned int ny = 3;
+        unsigned int ny = 18;
+        unsigned int na = 6;
+
+        // Auxiliary state
+        VectorXf state_aux=VectorXf::Zero(6);       // Auxiliary output states
 
         // Atmospheric parameters
         float rho = 1.225;

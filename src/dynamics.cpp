@@ -34,7 +34,10 @@ void dynamics::step( VectorXf& _u, VectorXf& _y )
     updateState( _u );
 
     /* System output */
-    VectorXf tmp( ny ); tmp << state[0], state[1], state[8];
+    VectorXf tmp( ny );
+    tmp( seq( 0,nx-1 ) ) = state;
+    tmp( seq( nx,ny-1 ) ) = state_aux;
+
     _y = tmp;
 }
 
@@ -81,11 +84,13 @@ VectorXf dynamics::EOM(   float _t, VectorXf x, const VectorXf& _u    )
     stateDerivative[10] = x[3]*x[11] - x[9]*x[5] + F(1)/mass;                                                                     // v - velocity y-axis (B-frame)
     stateDerivative[11] = x[4]*x[9] - x[3]*x[10] + F(2)/mass;                                                                     // w - velocity z-axis (B-frame)
 
+    state_aux( seq( 0,2 ) ) = stateDerivative( seq( 9,11 ) );
+
     return stateDerivative;
 }
 
 
-VectorXf dynamics::calculateForce(  float _t, VectorXf& _x, const VectorXf& _u )
+VectorXf dynamics::calculateForce( float _t, VectorXf& _x, const VectorXf& _u )
 {
     float theta1 = _u(0);           // gimbal rotation around x-axis
     float theta2 = _u(1);           // gimbal rotation around y-axis
@@ -97,6 +102,8 @@ VectorXf dynamics::calculateForce(  float _t, VectorXf& _x, const VectorXf& _u )
     Fg(0)=-sin(_x[1])*9.81*mass;
     Fg(1)=sin(_x[0])*cos(_x[1])*9.81*mass;
     Fg(2)=cos(_x[0])*cos(_x[1])*9.81*mass;
+    
+    state_aux( seq( 3,5 ) ) = Fg/mass;
 
     // Thrust
     VectorXf Ft(3);
