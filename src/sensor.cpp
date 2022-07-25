@@ -35,8 +35,7 @@ void sensor::processOutput( VectorXf& _y )
     QuaternionVector = toQuaternion( EulerAnglesVector );
     AccelVector = _y( seq( 12,14 ) );
     GravityVector = _y( seq( 15,17 ) );
-    LinAccelVector = AccelVector - GravityVector;
-
+    LinAccelVector = _y( seq( 12,14 ) ) - _y( seq( 15,17 ) );
     PositionVector = _y( seq( 6,8 ) );
 }
 
