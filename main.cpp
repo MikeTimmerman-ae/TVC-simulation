@@ -22,11 +22,16 @@ int main(int argc, char const *argv[])
     // Data points
     int Nsim = (int) (finalTime-initTime)/samplingTime;
 
-    // Input, output and reference vector
+    // Input, output signals and reference vector
     VectorXf u(3);
     VectorXf u_serv(2); u_serv << 0.0, 0.0;
     VectorXf u_prop(1); u_prop << 2276.856764;
-    VectorXf y(3); y << initState[0], initState[1], initState[8];
+
+    VectorXf ySystem(18);
+    VectorXf y(3);
+    VectorXf y_attitude(3); y_attitude << initState( seq( 0,2 ) );
+    VectorXf y_position(3); y_position << initState( seq( 6,8 ) );
+
     VectorXf ref(3); ref << -0.0872665, -0.0872665, -50;
     
     // Data matrices
@@ -36,7 +41,7 @@ int main(int argc, char const *argv[])
 
     // Initialize actuators
     actuator Servos( 2,u_serv, samplingTime );
-
+    
     Servos.setLowerControlLimit( -1,-0.261799 );        // Max gimbal angle
     Servos.setUpperControlLimit( -1, 0.261799 );        // deflections: +-15 deg
 
@@ -52,8 +57,7 @@ int main(int argc, char const *argv[])
     Propellers.setUpperRateLimit( 0, 100.0 );         // acceleration: +-1976.06 rad/s2
 
     // Initialize sensors
-    IMUsensor BNOo55;
-
+    IMUsensor BNO055;
 
     // Initialize controller
     PIDcontroller PID( 3,3,samplingTime );
@@ -86,22 +90,27 @@ int main(int argc, char const *argv[])
         if (Drone.state[8] <= 0.0)
         {
             // Control logic
+            y << y_attitude( seq( 0,1 ) ), y_position( seq( 2,2 ) );
+
             PID.step( Drone.time,y,ref );
             PID.getU( u );
 
             // Actuator
             u_serv = u( seq( 0,1 ) ); u_prop = u( seq( 2,2 ) );
             
-            u_serv = Servos.actuate( u_serv );
-            u_prop = Propellers.actuate( u_prop );
+            Servos.actuate( u_serv );
+            Propellers.actuate( u_prop );
             
             u << u_serv, u_prop;
 
             // System
-            Drone.step( u,y );
+            Drone.step( u,ySystem );
 
             // Sensor
+            BNO055.processOutput( ySystem );
             
+            BNO055.EulerAngles( y_attitude );
+            BNO055.PositionVec( y_position );   
         }
 
         // Save data
