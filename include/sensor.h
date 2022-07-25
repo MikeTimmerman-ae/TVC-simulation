@@ -22,11 +22,6 @@ class sensor
         sensor( );
 
 
-
-    //
-    // PROTECTED MEMBER FUNCTIONS
-    //
-    protected:
         /**
          * @brief Process system output vector
          * 
@@ -40,17 +35,17 @@ class sensor
     //
     protected:
         VectorXf omega;             // Angular velocity vector
-        VectorXf EulerAngles;       // Absolute orientation (Euler Angles)
-        VectorXf Quaternion;        // Absolute orientation (Quaternion)
+        VectorXf EulerAnglesVector; // Absolute orientation (Euler Angles)
+        VectorXf QuaternionVector;  // Absolute orientation (Quaternion)
         VectorXf AccelVector;       // Acceleration vector (gravity + linear motion)
         VectorXf LinAccelVector;    // Linear acceleration vector
-        VectorXf GravityVec;        // Gravity vector'
+        VectorXf GravityVector;     // Gravity vector'
         
-        VectorXf PositionVec;       // Position vector
+        VectorXf PositionVector;    // Position vector
 };
 
 
-class IMUsensor : sensor
+class IMUsensor : public sensor
 {
     //
     // PUBLIC MEMBER FUNCTIONS:
@@ -62,40 +57,53 @@ class IMUsensor : sensor
         IMUsensor( );
         
 
-        /**
-         * @brief 
+        /** 
+         * @brief Obtain Euler angle representation of system attitude
          * 
+         * @param[in] _yout         Output vector in which variables are stored
          */
-        VectorXf EulerAngles();
+        void EulerAngles( VectorXf& _yout );
 
         /**
-         * @brief 
+         * @brief Obtain quaternion representation of system attitude
          * 
+         * @param[in] _yout         Output vector in which variables are stored
          */
-        VectorXf Quaternion();
+        void Quaternion( VectorXf& _yout );
 
         /**
-         * @brief 
+         * @brief Obtain angular velocity vector of system
          * 
+         * @param[in] _yout         Output vector in which variables are stored
          */
-        VectorXf AngularVel();
+        void AngularVel( VectorXf& _yout );
 
         /**
-         * @brief 
+         * @brief Obtain acceleration vector of system
          * 
+         * @param[in] _yout         Output vector in which variables are stored
          */
-        VectorXf Acceleration();
+        void Acceleration( VectorXf& _yout );
 
         /**
-         * @brief 
+         * @brief Obtain linear acceleration vector of system (without gravity)
          * 
+         * @param[in] _yout         Output vector in which variables are stored
          */
-        VectorXf LinAcceleration();
+        void LinAcceleration( VectorXf& _yout );
 
         /**
-         * @brief 
+         * @brief Obtain gravitational acceleration vector of system (without movement)
          * 
+         * @param[in] _yout         Output vector in which variables are stored
          */
-        VectorXf GravityVec();
+        void GravityVec( VectorXf& _yout );
+
+        /**
+         * @brief Obtain system's positional vector
+         * 
+         * @param[in] _yout         Output vector in which variables are stored
+         */
+        void PositionVec( VectorXf& _yout );
 
 };
