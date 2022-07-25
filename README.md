@@ -17,6 +17,36 @@ The actuator class allows for modelling of the actuator dynamics, namely control
 ### Sensor
 The sensor class allows for providing realistic output data of the system. Several derived classes contain a certain type of sensor, such as the IMU sensor class which gives access to gyroscopic and accelerometer data. The main sensor class provides an interface to specify sensor bias and noise for each sensor.
 
+## Structure
+
+The simulator uses Eigen as its linear algebra module. It is structured as containing each class in a separate file with the header files of the class being stored in the include directory and the code in the src directory. The main header file contains all includes to these header files. The project structure is as follows:
+- TVC-simulation
+    * GUI
+      * GUI.py
+      * __init\__.py
+      * helpers.py
+    * include
+      * PIDcontroller.h
+      * actuator.h
+      * controller.h
+      * controller.ipp
+      * dynamics.h
+      * helpers.h 
+      * sensor.h
+    * libraries
+      * eigen (@submodule)
+    * src
+        * PIDcontroller.cpp
+        * actuator.cpp
+        * controller.cpp
+        * dynamics.cpp
+        * helpers.cpp
+        * sensor.cpp
+    * header.h
+    * main.cpp
+    * setup.py
+    * main.py
+
 ## Installation
 
 The project uses cmake to compile and link the project. This means that the user should have cmake installed to run the code as well as a C++ compiler, such as GCC. The user should also have git and python3 installed.
@@ -45,18 +75,18 @@ foo@bar:~$ git rm -r --cached libraries/eigen
 foo@bar:~$ git submodule add https://gitlab.com/libeigen/eigen.git libraries/eigen
 ```
 5. Create a build directory and create the cmake files by running cmake from it:
-```consolecd
-foo@bar:~$ mkdir TVC-simulation/build
+```console
+foo@bar:~$ mkdir build
 foo@bar:~$ cd build
 foo@bar:~$ cmake ..
 ```
 6. Build and link the project
-```
+```console
 foo@bar:~$ make
 ```
 
 7. The simulation can now be run using the executable in the build directory
-```
+```console
 foo@bar:~$ ./Simulator.exe
 ```
 8. Navigate back to the root directory and install the python UI using pip
