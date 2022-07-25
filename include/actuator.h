@@ -110,7 +110,7 @@ class actuator
          * 
          * @param[in] _u        Control signals to be adjusted
          */
-        VectorXf actuate( VectorXf _u );
+        void actuate( VectorXf _u );
 
 
 

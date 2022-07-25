@@ -128,7 +128,7 @@ void actuator::setUpperRateLimit( int idx, const float _upperRateLimit )
 
 
 
-VectorXf actuator::actuate( VectorXf _u )
+void actuator::actuate( VectorXf _u )
 {
     unsigned int i;
 
@@ -158,8 +158,6 @@ VectorXf actuator::actuate( VectorXf _u )
     }
     controlRate = (_u - lastU) / samplingTime;
     lastU = _u;
-
-    return _u;
 }
 
 
