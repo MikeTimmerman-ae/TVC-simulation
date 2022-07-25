@@ -33,3 +33,10 @@ MatrixXf loadFromFile(std::string FileName, int row, int col);
  * 
  */
 void saveToFile(MatrixXf &data, int rows, int cols, std::string FileName);
+
+
+/** Convert from euler angles to quaternion attitude representation
+ * 
+ * @param[in] EulerAnlges   Vector containing the euler angles: roll, pitch, yaw
+ */
+VectorXf toQuaternion( VectorXf& EulerAngles );

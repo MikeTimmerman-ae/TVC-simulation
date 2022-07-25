@@ -40,3 +40,25 @@ void saveToFile(MatrixXf &data, int rows, int cols, std::string FileName)
     }
     File.close();
 }
+
+
+VectorXf toQuaternion( VectorXf& EAngles )
+{   
+    VectorXf temp(4);
+
+    float roll = EAngles(0); float pitch = EAngles(1); float yaw = EAngles(2);
+
+    float cy = cos( yaw * 0.5 );
+    float sy = sin( yaw * 0.5);
+    float cp = cos( pitch * 0.5 );
+    float sp = sin( pitch * 0.5 );
+    float cr = cos( roll * 0.5 );
+    float sr = sin( roll * 0.5 );
+
+    temp(0) = cr * cp * cy + sr * sp * sy;
+    temp(1) = sr * cp * cy - cr * sp * sy;
+    temp(2) = cr * sp * cy + sr * cp * sy;
+    temp(3) = cr * cp * sy - sr * sp * cy;
+
+    return temp;
+}
