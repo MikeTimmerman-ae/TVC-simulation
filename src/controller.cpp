@@ -12,7 +12,7 @@
 // PUBLIC MEMBER FUNCTIONS:
 //
 
-controller::controller()
+controller::controller() : saturator( )
 {
     nInputs = 0;
     nOutputs = 0;
@@ -21,7 +21,7 @@ controller::controller()
 
 controller::controller( unsigned int _nInputs,
                         unsigned int _nOutputs,
-                        float _samplingTime )
+                        float _samplingTime ) : saturator( _nOutputs, _samplingTime)
 {
     if ( ( _nOutputs != _nInputs ) && ( _nOutputs != 1 ) )
         _nOutputs = 1;
@@ -32,10 +32,13 @@ controller::controller( unsigned int _nInputs,
     samplingTime = _samplingTime;
 
     u = VectorXf::Zero( nOutputs );
+    uSatDiff = VectorXf::Zero( nOutputs );
+    lastU = u;
+    yRef = VectorXf::Zero( nInputs );
 }
 
 
-controller::controller( const controller& rhs )
+controller::controller( const controller& rhs ) : saturator( rhs )
 {
     nInputs = rhs.nInputs;
     nOutputs = rhs.nOutputs;
@@ -43,6 +46,7 @@ controller::controller( const controller& rhs )
     samplingTime = rhs.samplingTime;
 
     u = rhs.u;
+    yRef = rhs.yRef;
 }
 
 
@@ -60,12 +64,12 @@ void controller::setPolynomialReference( const MatrixXf& _refCoeff )
 
 void controller::step( double currentTime, const VectorXf& _x, const VectorXf& _yRef )
 {
+    VectorXf temp( nU );
+
     if ( _x.size() != nInputs ) 
         throw std::invalid_argument("Incorrect number of inputs given to controller");
 
     // Set reference trajectory
-    VectorXf yRef( _x.size() );
-
     if ( _yRef.size() > 0 )
     {
         if ( _yRef.size() != nInputs )
@@ -81,6 +85,23 @@ void controller::step( double currentTime, const VectorXf& _x, const VectorXf& _
         determineControlAction( yRef - _x,u );
     else
         u.setZero();
+
+
+    // Saturate control input
+    temp = u;
+    saturate( u );
+
+    // Anti wind-up
+    for (unsigned int i=0; i<nU; ++i)
+    {
+        if (temp(i)-u(i) > 0)
+            uSatDiff(i) = temp(i)-u(i);
+        else
+            uSatDiff(i) = 0.0;
+    }
+
+    // Save last control output
+    lastU = u;
 }
 
 
@@ -90,7 +111,7 @@ void controller::step( double currentTime, const VectorXf& _x )
         throw std::invalid_argument("Incorrect number of inputs given to controller");
 
     // Get reference trajectory
-    VectorXf yRef( _x.size() ); yRef.setZero();
+    yRef.setZero();
 
     if ( refCoeff.rows() > 0 )
     {
@@ -113,4 +134,10 @@ void controller::step( double currentTime, const VectorXf& _x )
         determineControlAction( yRef - _x,u );
     else
         u.setZero();
+    
+    // Saturate control input
+    saturate( u );
+
+    // Save last control output
+    lastU = u;
 }

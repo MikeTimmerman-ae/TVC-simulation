@@ -11,7 +11,7 @@
 using namespace Eigen;              // using namespace of module
 
 
-class controller
+class controller : public saturator
 {
     //
     // PUBLIC MEMBER FUNCTIONS
@@ -81,6 +81,14 @@ class controller
 
 
     //
+    // PUBLIC DATA MEMBERS
+    //
+    public:
+        VectorXf yRef;
+
+
+
+    //
     // PROTECTED MEMBER FUNCTIONS
     // 
     protected:
@@ -106,6 +114,7 @@ class controller
         MatrixXf refCoeff;              // Reference using polynomial coefficients
 
         VectorXf u;                     // Control inputs
+        VectorXf uSatDiff;              // Difference over saturated signal
 };
 
 
