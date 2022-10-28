@@ -51,6 +51,36 @@ target_link_directories(PIDcontroller
 target_link_libraries(PIDcontroller eigen)
 
 
+# Add filter.cpp
+
+add_library(filter filter.cpp)
+
+target_include_directories(filter
+    PUBLIC ${CMAKE_SOURCE_DIR}/libraries/eigen    
+)
+
+target_link_directories(filter
+    PUBLIC ${CMAKE_SOURCE_DIR}/libraries/eigen
+)
+
+target_link_libraries(filter eigen)
+
+
+# Add saturator.cpp
+
+add_library(saturator saturator.cpp)
+
+target_include_directories(saturator
+    PUBLIC ${CMAKE_SOURCE_DIR}/libraries/eigen    
+)
+
+target_link_directories(saturator
+    PUBLIC ${CMAKE_SOURCE_DIR}/libraries/eigen
+)
+
+target_link_libraries(saturator eigen)
+
+
 # Add controller.cpp
 
 add_library(controller controller.cpp)
@@ -94,3 +124,20 @@ target_link_directories(sensor
 )
 
 target_link_libraries(sensor eigen)
+
+
+# Add INDIcontroller.cpp
+
+add_library(INDIcontroller INDIcontroller.cpp)
+
+target_include_directories(INDIcontroller
+    PUBLIC ${CMAKE_SOURCE_DIR}/libraries/eigen    
+)
+
+target_link_directories(INDIcontroller
+    PUBLIC ${CMAKE_SOURCE_DIR}/libraries/eigen
+)
+
+target_link_libraries(INDIcontroller eigen)
+
+
