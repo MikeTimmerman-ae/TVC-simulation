@@ -194,33 +194,11 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
     MatrixXf R(13,Nsim+1); R( seq(0,1),0 ) = ref_omega; R( seq(2,3),0 ) = ref_attitude; R( seq(4,6),0 ) = ref_acc; R( seq(7,9),0 ) = ref_vel; R( seq(10,12),0 ) = ref_pos; 
     
     // Define controller
-    PIDcontroller PIDpos( 3,3,samplingTime );
-    PIDcontroller PIDvel( 3,3,samplingTime );
+    PIDcontroller PIDpos( 3,3,samplingTime, 5 );
+    PIDcontroller PIDvel( 3,3,samplingTime, 10 );
     INDIcontroller INDI( 3,3,samplingTime );
-    PIDcontroller PID( 2,2,samplingTime );
-    PIDcontroller PIDinner( 2,2,samplingTime );
-
-    VectorXf pGains( 2 );
-	pGains(0) = 0.9;
-	pGains(1) = 0.9;
-
-	VectorXf iGains( 2 );
-	iGains(0) = 10.0;
-	iGains(1) = 10.0;
-
-	VectorXf dGains( 2 );
-	dGains(0) = 0.0;
-	dGains(1) = 0.0;
-
-    PID.setProportionalGains( pGains );
-    PID.setIntegralGains( iGains );
-    PID.setDerivativeGains( dGains );
-
-    PID.setLowerControlLimit( -1,-0.261799 );        // Max rotational velocity: +-15 deg/s
-    PID.setUpperControlLimit( -1, 0.261799 );
-
-    PID.setLowerRateLimit( -1,-0.0873 );       // Max rotational acceleration: +-5 deg/s2
-    PID.setUpperRateLimit( -1, 0.0873 );
+    PIDcontroller PID( 2,2,samplingTime, 10 );
+    PIDcontroller PIDinner( 2,2,samplingTime, 10 );
 
     VectorXf pGainsInner( 2 );
 	pGainsInner(0) = -1.0;
@@ -238,10 +216,32 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
     PIDinner.setIntegralGains( iGainsInner );
     PIDinner.setDerivativeGains( dGainsInner );
 
+    VectorXf pGains( 2 );
+	pGains(0) = 3.0;
+	pGains(1) = 3.0;
+
+	VectorXf iGains( 2 );
+	iGains(0) = 10.0;
+	iGains(1) = 10.0;
+
+	VectorXf dGains( 2 );
+	dGains(0) = 0.0;
+	dGains(1) = 0.0;
+
+    PID.setProportionalGains( pGains );
+    PID.setIntegralGains( iGains );
+    PID.setDerivativeGains( dGains );
+
+    // PID.setLowerControlLimit( -1,-0.261799 );        // Max rotational velocity: +-15 deg/s
+    // PID.setUpperControlLimit( -1, 0.261799 );
+
+    // PID.setLowerRateLimit( -1,-0.0873 );       // Max rotational acceleration: +-5 deg/s2
+    // PID.setUpperRateLimit( -1, 0.0873 );
+
     VectorXf pGainsVel( 3 );
-	pGainsVel(0) = 0.5;
-	pGainsVel(1) = 0.5;
-	pGainsVel(2) = 0.5;
+	pGainsVel(0) = 2.0;
+	pGainsVel(1) = 2.0;
+	pGainsVel(2) = 2.0;
 
     VectorXf dGainsVel( 3 );
 	dGainsVel(0) = 0.0;
@@ -249,29 +249,29 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
 	dGainsVel(2) = 0.0;
 
     VectorXf iGainsVel( 3 );
-	iGainsVel(0) = 2.0;
-	iGainsVel(1) = 2.0;
-	iGainsVel(2) = 2.0;
+	iGainsVel(0) = 10.0;
+	iGainsVel(1) = 10.0;
+	iGainsVel(2) = 10.0;
 
     PIDvel.setProportionalGains( pGainsVel );
     PIDvel.setDerivativeGains( dGainsVel );
     PIDvel.setIntegralGains( iGainsVel );
 
-    PIDvel.setLowerControlLimit( -1,-0.3 );        // Max acceleration: +-0.3 m/s
-    PIDvel.setUpperControlLimit( -1, 0.3 );
+    // PIDvel.setLowerControlLimit( -1,-0.3 );        // Max acceleration: +-0.3 m/s
+    // PIDvel.setUpperControlLimit( -1, 0.3 );
 
-    PIDvel.setLowerRateLimit( -1,-0.05 );          // Max time derivative of acceleration: +-0.05 m/s2
-    PIDvel.setUpperRateLimit( -1, 0.05 );
+    // PIDvel.setLowerRateLimit( -1,-0.05 );          // Max time derivative of acceleration: +-0.05 m/s2
+    // PIDvel.setUpperRateLimit( -1, 0.05 );
 
     VectorXf pGainsPos( 3 );
-	pGainsPos(0) = 0.2;
-	pGainsPos(1) = 0.2;
-	pGainsPos(2) = 0.2;
+	pGainsPos(0) = 0.7;
+	pGainsPos(1) = 0.7;
+	pGainsPos(2) = 1.0;
 
     VectorXf dGainsPos( 3 );
-	dGainsPos(0) = 2.0;
-	dGainsPos(1) = 2.0;
-	dGainsPos(2) = 2.0;
+	dGainsPos(0) = 0.0;
+	dGainsPos(1) = 0.0;
+	dGainsPos(2) = 0.0;
 
     VectorXf iGainsPos( 3 );
 	iGainsPos(0) = 2.0;
@@ -282,36 +282,36 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
     PIDpos.setDerivativeGains( dGainsPos );
     PIDpos.setIntegralGains( iGainsPos );
 
-    PIDpos.setLowerControlLimit( -1,-1.0 );        // Max velocity: +-5 m/s
-    PIDpos.setUpperControlLimit( -1, 1.0);
+    // PIDpos.setLowerControlLimit( -1,-1.0 );        // Max velocity: +-5 m/s
+    // PIDpos.setUpperControlLimit( -1, 1.0);
 
-    PIDpos.setLowerRateLimit( -1,-0.1 );           // Max acceleration: +-0.1 m/s2
-    PIDpos.setUpperRateLimit( -1, 0.1 );
+    // PIDpos.setLowerRateLimit( -1,-1.0 );           // Max acceleration: +-0.1 m/s2
+    // PIDpos.setUpperRateLimit( -1, 1.0 );
 
     // Define and initialize actuators
     actuator Servos( 2,u_serv,samplingTime );
     
-    Servos.setLowerControlLimit( -1,-0.261799 );        // Max gimbal angle
-    Servos.setUpperControlLimit( -1, 0.261799 );        // deflections: +-15 deg
+    // Servos.setLowerControlLimit( -1,-0.261799 );        // Max gimbal angle
+    // Servos.setUpperControlLimit( -1, 0.261799 );        // deflections: +-15 deg
 
-    Servos.setLowerRateLimit( -1,-0.261799 );           // Max gimbal deflection
-    Servos.setUpperRateLimit( -1, 0.261799 );           // rateL +-15 deg/s
+    // Servos.setLowerRateLimit( -1,-0.261799 );           // Max gimbal deflection
+    // Servos.setUpperRateLimit( -1, 0.261799 );           // rateL +-15 deg/s
 
     actuator Propellers( 1,u_prop,samplingTime );
 
-    Propellers.setLowerControlLimit( 0,-3952.12 );      // Max propeller rotational
-    Propellers.setUpperControlLimit( 0, 3952.12 );      // acceleration: +-3952.12 rad/s
+    // Propellers.setLowerControlLimit( 0,-3952.12 );      // Max propeller rotational
+    // Propellers.setUpperControlLimit( 0, 3952.12 );      // acceleration: +-3952.12 rad/s
 
-    Propellers.setLowerRateLimit( 0,-100.0 );         // Max propeller rotational
-    Propellers.setUpperRateLimit( 0, 100.0 );         // acceleration: +-1976.06 rad/s2
+    // Propellers.setLowerRateLimit( 0,-100.0 );         // Max propeller rotational
+    // Propellers.setUpperRateLimit( 0, 100.0 );         // acceleration: +-1976.06 rad/s2
 
     actuator Attitude( 2,y_attitude(seq(0,1)),samplingTime );
     
-    Attitude.setLowerControlLimit( -1,-2.61799 );        // Max attitude angle: +-15 deg
-    Attitude.setUpperControlLimit( -1, 2.61799 );
+    // Attitude.setLowerControlLimit( -1,-2.61799 );        // Max attitude angle: +-15 deg
+    // Attitude.setUpperControlLimit( -1, 2.61799 );
 
-    Attitude.setLowerRateLimit( -1,-0.05 );       // Max rotational velocity: +-0.15 deg/s
-    Attitude.setUpperRateLimit( -1, 0.05 );        
+    // Attitude.setLowerRateLimit( -1,-0.05 );       // Max rotational velocity: +-0.15 deg/s
+    // Attitude.setUpperRateLimit( -1, 0.05 );        
 
     // Define sensors
     IMUsensor BNO055;
@@ -322,17 +322,17 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
     PIDvel.init( y_vel,y_acc,ref_vel,initTime );
     PID.init( y_attitude(seq(0,1)),y_omega,ref_attitude,initTime );
     PIDinner.init( y_omega(seq(0,1)),u,ref_omega,initTime );
-    
+
     // Run closed-loop simulation
     for (int i=0; i<Nsim; ++i)
     {
         // Drone has not hit ground
         if (Drone.state[8] <= 0.0)
         {
-            // // Set position reference
+            // Set position reference
             ref_pos = Reference.col(i);
-            
-            // // Control logic
+
+            // Control logic
             PIDpos.step( Drone.time,y_position,ref_pos );
             PIDpos.getU( ref_vel );
 
@@ -357,7 +357,7 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
             // Actuator            
             Servos.actuate( u_serv );
             Propellers.actuate( u_prop );
-            
+
             u << u_serv, u_prop;
 
             // System
