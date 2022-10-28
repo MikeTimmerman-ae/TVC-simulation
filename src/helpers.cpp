@@ -62,3 +62,16 @@ VectorXf toQuaternion( VectorXf& EAngles )
 
     return temp;
 }
+
+
+VectorXf BFRtoNED( VectorXf& EulerAngles, VectorXf& Vector )
+{
+    float phi = EulerAngles(0); float theta = EulerAngles(1); float psi = EulerAngles(2);
+
+    MatrixXf Mnb(3,3);
+    Mnb <<  cos(psi)*cos(theta), -sin(psi)*cos(phi)+cos(psi)*sin(theta)*sin(phi), sin(psi)*sin(phi)+cos(psi)*sin(theta)*cos(phi),
+            sin(psi)*cos(theta), cos(psi)*cos(phi)+sin(psi)*sin(theta)*sin(phi),-cos(psi)*sin(phi)+sin(psi)*sin(theta)*cos(phi),
+            -sin(theta), cos(theta)*sin(phi), cos(theta)*cos(phi);
+    
+    return Mnb*Vector;
+}

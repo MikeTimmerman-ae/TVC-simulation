@@ -40,3 +40,13 @@ void saveToFile(MatrixXf &data, int rows, int cols, std::string FileName);
  * @param[in] EulerAnlges   Vector containing the euler angles: roll, pitch, yaw
  */
 VectorXf toQuaternion( VectorXf& EulerAngles );
+
+
+/** Convert vector from body-fixed reference frame to earth-fixed reference frame
+ * 
+ * @param[in] EulerAnlges       Vector containing the euler angles: roll, pitch, yaw
+ * @param[in] Vector            Vector to be transformed
+ * 
+ * \return transformed vector in earth-fixed reference frame (NED)
+ */
+VectorXf BFRtoNED( VectorXf& EulerAngles, VectorXf& Vector );
