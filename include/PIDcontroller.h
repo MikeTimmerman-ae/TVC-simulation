@@ -29,6 +29,15 @@ class PIDcontroller : public controller
          */
         PIDcontroller( unsigned int _nInputs, unsigned int _nOutputs, float _samplingTime );
 
+        /** Constructor which takes number of inputs and outputs as well as sampling time
+         * 
+         * @param[in] _nInputs          // Number of inputs
+         * @param[in] _nOutputs         // Number of outputs
+         * @param[in] samplingTime      // Sampling time
+         * @param[in] _omega_0              // Cut-off frequency low-pass filter [rad/s]
+         */
+        PIDcontroller( unsigned int _nInputs, unsigned int _nOutputs, float _samplingTime, float _omega_0 );
+
         /** Copy constructor
          * 
          * @param[in] _rhs      Right-hand side object
@@ -65,18 +74,20 @@ class PIDcontroller : public controller
         /** 
          * @brief Initilizes the control law with given start values and performs consitency checks
          * 
-         * @param[in] _startTime        Start time
-         * @param[in] _x                Initial value for differential states
+         * @param[in] _x0               Initial value for differential states
+         * @param[in] _initU            Initial output value of controller
          * @param[in] _yRef             Initial value for reference trajectory
+         * @param[in] _startTime        Start time
          */
-        void init( const VectorXf& _x0, const VectorXf& _yRef, double startTime );
+        void init( const VectorXf& _x0, const VectorXf& _initU, const VectorXf& _yRef, double startTime );
 
         /** Initilizes the control law with given start values and performs consitency checks
          * 
+         * @param[in] _x0               Initial value for differential states
+         * @param[in] _initU            Initial output value of controller
          * @param[in] _startTime        Start time
-         * @param[in] _x                Initial value for differential states
          */
-        void init( const VectorXf& _x0, double startTime );
+        void init( const VectorXf& _x0, const VectorXf& _initU, double startTime );
 
 
 
@@ -103,4 +114,6 @@ class PIDcontroller : public controller
 
         VectorXf iValue;                // Integrated value for all input components - used for integral term
         VectorXf lastError;             // Last error input - used for derivative term
+
+        double Kaw = 0.0;               // Anti wind-up gain
 };

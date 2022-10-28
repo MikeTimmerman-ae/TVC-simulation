@@ -27,6 +27,14 @@ INDIcontroller::INDIcontroller( unsigned int _nInputs,
     controlEffectiveness = MatrixXf::Zero( _nOutputs,_nInputs );
 }
 
+INDIcontroller::INDIcontroller( unsigned int _nInputs,
+                                unsigned int _nOutputs,
+                                float samplingTime,
+                                float _omega_0   ) : controller( _nInputs, _nOutputs, samplingTime, _omega_0 )
+{
+    currentInput = VectorXf::Zero( _nInputs );
+    controlEffectiveness = MatrixXf::Zero( _nOutputs,_nInputs );
+}
 
 INDIcontroller::INDIcontroller( const INDIcontroller& rhs ) : controller( rhs )
 {

@@ -29,6 +29,15 @@ class INDIcontroller : public controller
          */
         INDIcontroller( unsigned int _nInputs, unsigned int _nOutputs, float _samplingTime );
 
+        /** Constructor which takes number of inputs and outputs as well as sampling time
+         * 
+         * @param[in] _nInputs          // Number of inputs
+         * @param[in] _nOutputs         // Number of outputs
+         * @param[in] samplingTime      // Sampling time
+         * @param[in] _omega_0          // Cut-off frequency low-pass filter [rad/s]
+         */
+        INDIcontroller( unsigned int _nInputs, unsigned int _nOutputs, float _samplingTime, float _omega_0 );
+
         /** Copy constructor
          * 
          * @param[in] _rhs      Right-hand side object

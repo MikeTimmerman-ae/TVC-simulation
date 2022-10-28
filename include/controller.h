@@ -11,7 +11,7 @@
 using namespace Eigen;              // using namespace of module
 
 
-class controller : public saturator
+class controller : public saturator, public filter
 {
     //
     // PUBLIC MEMBER FUNCTIONS
@@ -30,6 +30,17 @@ class controller : public saturator
          * @param[in] _samplingTime         // Sampling time
          */
         controller( unsigned int _nInputs, unsigned int _nOutputs, float _samplingTime );
+
+        /** 
+         * @brief Constructor which takes number of inputs and outputs, sampling time and cut-off filter frequency
+         * 
+         * @param[in] _nInputs              // Number of inputs
+         * @param[in] _nOutputs             // Number of outputs
+         * @param[in] _samplingTime         // Sampling time
+         * @param[in] _omega_0              // Cut-off frequency low-pass filter [rad/s]
+         */
+        controller( unsigned int _nInputs, unsigned int _nOutputs, float _samplingTime, float _omega_0 );
+
 
         /** 
          * @brief Copy constructor

@@ -21,7 +21,27 @@ controller::controller() : saturator( )
 
 controller::controller( unsigned int _nInputs,
                         unsigned int _nOutputs,
-                        float _samplingTime ) : saturator( _nOutputs, _samplingTime)
+                        float _samplingTime ) : saturator( _nOutputs, _samplingTime), filter( _nOutputs, _samplingTime )
+{
+    if ( ( _nOutputs != _nInputs ) && ( _nOutputs != 1 ) )
+        _nOutputs = 1;
+
+    nInputs = _nInputs;
+    nOutputs = _nOutputs;
+
+    samplingTime = _samplingTime;
+
+    u = VectorXf::Zero( nOutputs );
+    uSatDiff = VectorXf::Zero( nOutputs );
+    lastU = u;
+    yRef = VectorXf::Zero( nInputs );
+}
+
+
+controller::controller( unsigned int _nInputs,
+                        unsigned int _nOutputs,
+                        float _samplingTime,
+                        float _omega_0 ) : saturator( _nOutputs, _samplingTime ), filter( _omega_0, _nOutputs, _samplingTime )
 {
     if ( ( _nOutputs != _nInputs ) && ( _nOutputs != 1 ) )
         _nOutputs = 1;
@@ -99,6 +119,10 @@ void controller::step( double currentTime, const VectorXf& _x, const VectorXf& _
         else
             uSatDiff(i) = 0.0;
     }
+
+    // Filter signal
+    filterSignal( u, u );
+
 
     // Save last control output
     lastU = u;

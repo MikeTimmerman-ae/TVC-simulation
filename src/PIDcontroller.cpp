@@ -28,6 +28,20 @@ PIDcontroller::PIDcontroller(   unsigned int _nInputs,
 }
 
 
+PIDcontroller::PIDcontroller(   unsigned int _nInputs,
+                                unsigned int _nOutputs,
+                                float samplingTime,
+                                float _omega_0    ) : controller( _nInputs, _nOutputs, samplingTime, _omega_0 )
+{
+	pGains = VectorXf::Zero( nInputs );
+	iGains = VectorXf::Zero( nInputs );
+	dGains = VectorXf::Zero( nInputs );
+
+    iValue = VectorXf::Zero( nInputs );
+    lastError = VectorXf::Zero( nInputs );
+}
+
+
 PIDcontroller::PIDcontroller( const PIDcontroller& rhs ) : controller( rhs )
 {
 	pGains = rhs.pGains;
@@ -69,7 +83,7 @@ void PIDcontroller::setDerivativeGains( const VectorXf& _dGains )
 }
 
 
-void PIDcontroller::init( const VectorXf& _x0, const VectorXf& _yRef, double startTime )
+void PIDcontroller::init( const VectorXf& _x0, const VectorXf& _initU, const VectorXf& _yRef, double startTime )
 {
     if ( _x0.size() != nInputs ) 
         throw std::invalid_argument("Incorrect number of state dimensions to initialize controller");
@@ -87,11 +101,15 @@ void PIDcontroller::init( const VectorXf& _x0, const VectorXf& _yRef, double sta
     else
         yRef.setZero();
 
+    // Set initial control output
+    lastU = _initU;
+
+    // Set initial error
     lastError = yRef - _x0;
 }
 
 
-void PIDcontroller::init( const VectorXf& _x0, double startTime )
+void PIDcontroller::init( const VectorXf& _x0, const VectorXf& _initU, double startTime )
 {
     if ( _x0.size() != nInputs ) 
         throw std::invalid_argument("Incorrect number of state dimensions to initialize controller");
@@ -115,6 +133,10 @@ void PIDcontroller::init( const VectorXf& _x0, double startTime )
     else
         yRef.setZero();
 
+    // Set initial control output
+    lastU = _initU;
+
+    // Set initial error
     lastError = yRef - _x0;
 }
 
@@ -134,7 +156,7 @@ void PIDcontroller::determineControlAction( const VectorXf& error, VectorXf& out
     for ( i=0; i<nInputs; ++i )
     {
         tmp  = pGains(i) * error(i);
-        tmp += iGains(i) * iValue(i);
+        tmp += iGains(i) * (iValue(i) - Kaw*uSatDiff(i)) * samplingTime;
         tmp += dGains(i) * (error(i) - lastError(i)) / samplingTime;
 
         if ( nOutputs > 1  )
