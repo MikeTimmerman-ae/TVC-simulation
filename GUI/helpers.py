@@ -14,7 +14,18 @@ def Bframe2Eframe(attitude, axisB):
     return axisE
 
 
-def Eframe2Glframe(axisE):
+def Eframe2GlframeRotation(axisE):
+
+    Megl = np.array([[1, 0, 0],
+                     [0, 0, 1],
+                     [0, 1, 0]])
+
+    axisGL = axisE.dot(Megl)
+
+    return axisGL
+
+
+def Eframe2GlframeTranslation(axisE):
 
     Megl = np.array([[1, 0, 0],
                      [0, 0, 1],
