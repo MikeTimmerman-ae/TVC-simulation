@@ -10,7 +10,6 @@
 
 inline void controller::getU(   VectorXf& _u    )
 {
-    _u(0) = u(0);
-    _u(1) = u(1);
-    _u(2) = u(2)+2276.856764;
+    for (unsigned int i=0; i<nOutputs; ++i)
+        _u(i) = u(i);
 }
