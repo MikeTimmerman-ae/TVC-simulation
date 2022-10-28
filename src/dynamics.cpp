@@ -85,6 +85,7 @@ VectorXf dynamics::EOM(   float _t, VectorXf x, const VectorXf& _u    )
     stateDerivative[11] = x[4]*x[9] - x[3]*x[10] + F(2)/mass;                                                                     // w - velocity z-axis (B-frame)
 
     state_aux( seq( 0,2 ) ) = stateDerivative( seq( 9,11 ) );
+    earthVel = stateDerivative( seq( 6,8 ) ); 
 
     return stateDerivative;
 }
@@ -107,12 +108,12 @@ VectorXf dynamics::calculateForce( float _t, VectorXf& _x, const VectorXf& _u )
 
     // Thrust
     VectorXf Ft(3);
-    Ft(0)=-sin(theta2) * (kf1*omega1 + kf2*omega2);
-    Ft(1)=sin(theta1)*cos(theta2) * (kf1*omega1 + kf2*omega2);
-    Ft(2)=-cos(theta1)*cos(theta2) * (kf1*omega1 + kf2*omega2);
+    Ft(0)= sin(theta2) * (kf1*omega1 + kf2*omega2);
+    Ft(1)=-sin(theta1)*cos(theta2) * (kf1*omega1 + kf2*omega2);
+    Ft(2)= cos(theta1)*cos(theta2) * (kf1*omega1 + kf2*omega2);
 
     // Aerodynamic Force
-    VectorXf Fa(3);
+    VectorXf Fa = VectorXf::Zero(3);
     Fa(0) = 1/2 * rho * pow( _x[9],2 ) * Cdx * Ax;
     Fa(1) = 1/2 * rho * pow( _x[10],2 ) * Cdy * Ay;
     Fa(2) = 1/2 * rho * pow( _x[11],2 ) * Cdz * Az;
@@ -136,24 +137,24 @@ VectorXf dynamics::calculateMoment(  float _t, VectorXf& _x, const VectorXf& _u 
 
     // Control moment
     VectorXf Mc(3);
-    Mc(0) = -rcg*sin(theta1)*cos(theta2) * (kf1*omega1 + kf2*omega2) - sin(theta2) * (km1*omega1 + km2*omega2);
-    Mc(1) = -rcg*sin(theta2)*(kf1*omega1 + kf2*omega2) + sin(theta1)*cos(theta2) * (km1*omega1 + km2*omega2);
+    Mc(0) = rcg*sin(theta1)*cos(theta2) * (kf1*omega1 + kf2*omega2) - sin(theta2) * (km1*omega1 + km2*omega2);
+    Mc(1) = rcg*sin(theta2)*(kf1*omega1 + kf2*omega2) + sin(theta1)*cos(theta2) * (km1*omega1 + km2*omega2);
     Mc(2) = -cos(theta1)*cos(theta2) * (km1*omega1 + km2*omega2);
     
     // Aerodynamic moment
-    VectorXf Ma(3);
+    VectorXf Ma = VectorXf::Zero(3);
     Ma(0) = 1/2 * rho * pow( _x[9],2 ) * Cdx * Ax * rcp;
     Ma(1) = 1/2 * rho * pow( _x[10],2 ) * Cdy * Ay * rcp;
     Ma(2) = 0;
 
     // Thrust Offset
-    VectorXf Mt(3);
+    VectorXf Mt = VectorXf::Zero(3);
     Mt(0)= cos(theta1)*cos(theta2) * (kf1*omega1 + kf2*omega2) * thrustOffsetY;
     Mt(1)=-cos(theta1)*cos(theta2) * (kf1*omega1 + kf2*omega2) * thrustOffsetX;
     Mt(2)= 0;
     
     // Disturbance moment
-    VectorXf Md=VectorXf::Zero(3);
+    VectorXf Md = VectorXf::Zero(3);
 
     return Ma+Md+Mc-Mr+Mt;
 }

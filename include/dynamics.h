@@ -54,11 +54,21 @@ class dynamics
         void step( VectorXf& _u, VectorXf& _y );
     
 
+        /** 
+         * @brief Returns system sampling time
+         * 
+         * \return sampling time
+         */
+        inline float getdt( );
+
+
+
     //
     // PUBLIC DATA MEMBERS
     //
 
         VectorXf state;
+        VectorXf earthVel=VectorXf::Zero(3);
         float time;
 
 
@@ -105,7 +115,6 @@ class dynamics
         VectorXf calculateMoment(   float _t, VectorXf& _state, const VectorXf& _u    );
 
 
-
     //
 	// PRIVATE DATA MEMBER:
 	//
@@ -144,11 +153,11 @@ class dynamics
         float Cdz = 0.45;                           // Aerodyanic coefficient in z-direction in body-frame [-]
 
         // Propeller parameters
-        float kf1 = 0.00377; float kf2 = -0.00377;
+        float kf1 = -0.00377; float kf2 = 0.00377;
         float km1 = 0.01; float km2 = 0.01;
 
-        float thrustOffsetX = 0.01;                  // Offset from propeller vertical thrust in x-dir and cg [m]
-        float thrustOffsetY = 0.01;                  // Offset from propeller vertical thrust in y-dir and cg [m]
+        float thrustOffsetX = 0.0;                  // Offset from propeller vertical thrust in x-dir and cg [m]
+        float thrustOffsetY = 0.0;                  // Offset from propeller vertical thrust in y-dir and cg [m]
 
         // Runge-Kutta 45 integration
         VectorXf k1=VectorXf::Zero(12);
