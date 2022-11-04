@@ -14,6 +14,7 @@
 
 #include "include/saturator.h"       // include src code
 #include "include/filter.h"
+#include "include/estimator.h"
 #include "include/controller.h"
 #include "include/controller.ipp"
 #include "include/dynamics.h"

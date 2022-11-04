@@ -20,6 +20,7 @@ target_include_directories(PIDattitudeControl
     PUBLIC ${CMAKE_SOURCE_DIR}/src/sensor
     PUBLIC ${CMAKE_SOURCE_DIR}/src/saturator
     PUBLIC ${CMAKE_SOURCE_DIR}/src/filter
+    PUBLIC ${CMAKE_SOURCE_DIR}/src/estimator
 )
 
 target_link_directories(PIDattitudeControl
@@ -32,6 +33,7 @@ target_link_directories(PIDattitudeControl
     PUBLIC ${CMAKE_SOURCE_DIR}/src/sensor
     PUBLIC ${CMAKE_SOURCE_DIR}/src/saturator
     PUBLIC ${CMAKE_SOURCE_DIR}/src/filter
+    PUBLIC ${CMAKE_SOURCE_DIR}/src/estimator
 )
 
-target_link_libraries(PIDattitudeControl eigen actuator helpers PIDcontroller INDIcontroller controller sensor saturator filter)
+target_link_libraries(PIDattitudeControl eigen actuator helpers PIDcontroller INDIcontroller controller sensor saturator estimator filter)

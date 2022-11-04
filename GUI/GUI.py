@@ -216,12 +216,14 @@ class MplCanvas(FigureCanvasQTAgg):
         super().__init__(self.fig)
         self.setParent(parent)
 
-    def plot2D(self, x, y, xlabel, ylabel, r=None):
+    def plot2D(self, x, y, xlabel, ylabel, r=None, e=None):
         self.fig.clear()
         self.axes = self.fig.add_subplot()
         self.axes.plot(x, y)
         if r is not None:
             self.axes.plot(x, r, 'r')
+        if e is not None:
+            self.axes.plot(x, e, 'y')
         self.axes.grid()
         self.axes.set_xlabel(xlabel)
         self.axes.set_ylabel(ylabel)
@@ -1951,6 +1953,7 @@ class simulation():
 
         # Load simulation data
         self.x_vec = pd.read_csv("data/state.csv", header=None)           # Simulation states
+        self.e_vec = pd.read_csv("data/estimate.csv", header=None)        # Simulation estimated states
         self.r_vec = pd.read_csv("data/ref.csv", header=None)           # Simulation reference
         self.u_vec = pd.read_csv("data/input.csv", header=None)           # Simulation inputs
         self.t_vec = np.genfromtxt('data/time.csv', delimiter=',')        # Simulation time
@@ -2068,12 +2071,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def generateGraphs(self):
         t = self.ui.openGLWidget.simulation.t_vec
         x = np.array(self.ui.openGLWidget.simulation.x_vec)
+        e = np.array(self.ui.openGLWidget.simulation.e_vec)
         r = np.array(self.ui.openGLWidget.simulation.r_vec)
         u = np.array(self.ui.openGLWidget.simulation.u_vec)
         # Page 1: earth-fixed graphs
-        self.ui.graph1_1.plot2D(t, x[:][6], "Time [s]", "X position [m]", r[:][10])
-        self.ui.graph1_2.plot2D(t, x[:][7], "Time [s]", "Y position [m]", r[:][11])
-        self.ui.graph1_3.plot2D(t, -x[:][8], "Time [s]", "Z position [m]", -r[:][12])
+        self.ui.graph1_1.plot2D(t, x[:][6], "Time [s]", "X position [m]", r[:][10], e[:][6])
+        self.ui.graph1_2.plot2D(t, x[:][7], "Time [s]", "Y position [m]", r[:][11], e[:][7])
+        self.ui.graph1_3.plot2D(t, -x[:][8], "Time [s]", "Z position [m]", -r[:][12], -e[:][8])
 
         self.ui.graph1_4.plot2D(t, x[:][12], "Time [s]", "X velocity [m/s]", r[:][7])
         self.ui.graph1_5.plot2D(t, x[:][13], "Time [s]", "Y velocity [m/s]", r[:][8])
@@ -2084,18 +2088,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.graph2_2.plot2D(t, x[:][16], "Time [s]", "Y acceleration [m/s2]", r[:][5])
         self.ui.graph2_3.plot2D(t, -x[:][17], "Time [s]", "Z acceleration [m/s2]", -r[:][6])
 
-        self.ui.graph2_4.plot2D(t, x[:][0]*180/pi, "Time [s]", "Roll angle [deg]", r[:][2]*180/pi)
-        self.ui.graph2_5.plot2D(t, x[:][1]*180/pi, "Time [s]", "Pitch angle [deg]", r[:][3]*180/pi)
-        self.ui.graph2_6.plot2D(t, x[:][2]*180/pi, "Time [s]", "Yaw angle [deg]")
+        self.ui.graph2_4.plot2D(t, x[:][0]*180/pi, "Time [s]", "Roll angle [deg]", r[:][2]*180/pi, e[:][0]*180/pi)
+        self.ui.graph2_5.plot2D(t, x[:][1]*180/pi, "Time [s]", "Pitch angle [deg]", r[:][3]*180/pi, e[:][1]*180/pi)
+        self.ui.graph2_6.plot2D(t, x[:][2]*180/pi, "Time [s]", "Yaw angle [deg]", None, e[:][2]*180/pi)
 
         # Page 3: body-fixed graphs
-        self.ui.graph3_1.plot2D(t, x[:][9], "Time [s]", "X velocity [m/s]")
-        self.ui.graph3_2.plot2D(t, x[:][10], "Time [s]", "Y velocity [m/s]")
-        self.ui.graph3_3.plot2D(t, x[:][11], "Time [s]", "Z velocity [m/s]")
+        self.ui.graph3_1.plot2D(t, x[:][9], "Time [s]", "X velocity [m/s]", None, e[:][9])
+        self.ui.graph3_2.plot2D(t, x[:][10], "Time [s]", "Y velocity [m/s]", None, e[:][10])
+        self.ui.graph3_3.plot2D(t, x[:][11], "Time [s]", "Z velocity [m/s]", None, e[:][11])
 
-        self.ui.graph3_4.plot2D(t, x[:][3]*180/pi, "Time [s]", "Roll rate [deg/s]", r[:][0]*180/pi)
-        self.ui.graph3_5.plot2D(t, x[:][4]*180/pi, "Time [s]", "Pitch rate [deg/s]", r[:][1]*180/pi)
-        self.ui.graph3_6.plot2D(t, x[:][5]*180/pi, "Time [s]", "Yaw rate [deg/s]")
+        self.ui.graph3_4.plot2D(t, x[:][3]*180/pi, "Time [s]", "Roll rate [deg/s]", r[:][0]*180/pi, e[:][3]*180/pi)
+        self.ui.graph3_5.plot2D(t, x[:][4]*180/pi, "Time [s]", "Pitch rate [deg/s]", r[:][1]*180/pi, e[:][4]*180/pi)
+        self.ui.graph3_6.plot2D(t, x[:][5]*180/pi, "Time [s]", "Yaw rate [deg/s]", None, e[:][5]*180/pi)
 
         # Page 4: inputs
         self.ui.graph4_1.plot2D(t, u[:][0]*180/pi, "Time [s]", "X gimbal angle [deg]")

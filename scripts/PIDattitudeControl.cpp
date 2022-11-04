@@ -174,6 +174,8 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
     VectorXf u_serv(2); u_serv << 0.0, 0.0;
     VectorXf u_prop(1); u_prop << 2276.856764;
 
+    VectorXf e(12);
+
     VectorXf ySystem(18);
     VectorXf y_position(3); y_position << Drone.state( seq( 6,8 ) );
     VectorXf y_vel = VectorXf::Zero(3);
@@ -189,12 +191,13 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
 
     // Data matrices
     MatrixXf X(18,Nsim+1); X( seq(0,11),0 )=Drone.state;
+    MatrixXf E(12,Nsim+1); X( seq(0,11),0 )=e;
     MatrixXf U(6,Nsim+1); U( seq(0,1),0 )=u_serv; U( seq(2,2),0 )=u_prop; U(seq(3,5), 0) = VectorXf::Zero(3);
     MatrixXf T(1,Nsim+1); T( 0,0 ) = initTime;
     MatrixXf R(13,Nsim+1); R( seq(0,1),0 ) = ref_omega; R( seq(2,3),0 ) = ref_attitude; R( seq(4,6),0 ) = ref_acc; R( seq(7,9),0 ) = ref_vel; R( seq(10,12),0 ) = ref_pos; 
     
     // Define controller
-    PIDcontroller PIDpos( 3,3,samplingTime, 5 );
+    PIDcontroller PIDpos( 3,3,samplingTime, 10 );
     PIDcontroller PIDvel( 3,3,samplingTime, 10 );
     INDIcontroller INDI( 3,3,samplingTime );
     PIDcontroller PID( 2,2,samplingTime, 10 );
@@ -221,8 +224,8 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
 	pGains(1) = 3.0;
 
 	VectorXf iGains( 2 );
-	iGains(0) = 10.0;
-	iGains(1) = 10.0;
+	iGains(0) = 1.0;
+	iGains(1) = 1.0;
 
 	VectorXf dGains( 2 );
 	dGains(0) = 0.0;
@@ -239,9 +242,9 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
     // PID.setUpperRateLimit( -1, 0.0873 );
 
     VectorXf pGainsVel( 3 );
-	pGainsVel(0) = 2.0;
-	pGainsVel(1) = 2.0;
-	pGainsVel(2) = 2.0;
+	pGainsVel(0) = 2.5;
+	pGainsVel(1) = 2.5;
+	pGainsVel(2) = 2.5;
 
     VectorXf dGainsVel( 3 );
 	dGainsVel(0) = 0.0;
@@ -249,9 +252,9 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
 	dGainsVel(2) = 0.0;
 
     VectorXf iGainsVel( 3 );
-	iGainsVel(0) = 10.0;
-	iGainsVel(1) = 10.0;
-	iGainsVel(2) = 10.0;
+	iGainsVel(0) = 1.0;
+	iGainsVel(1) = 1.0;
+	iGainsVel(2) = 1.0;
 
     PIDvel.setProportionalGains( pGainsVel );
     PIDvel.setDerivativeGains( dGainsVel );
@@ -274,9 +277,9 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
 	dGainsPos(2) = 0.0;
 
     VectorXf iGainsPos( 3 );
-	iGainsPos(0) = 2.0;
-	iGainsPos(1) = 2.0;
-	iGainsPos(2) = 2.0;
+	iGainsPos(0) = 0.5;
+	iGainsPos(1) = 0.5;
+	iGainsPos(2) = 0.5;
 
     PIDpos.setProportionalGains( pGainsPos );
     PIDpos.setDerivativeGains( dGainsPos );
@@ -316,6 +319,8 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
     // Define sensors
     IMUsensor BNO055;
 
+    // Define estimators
+    estimator Estimator( Drone.state, initTime, samplingTime );
 
     // Initialize controllers
     PIDpos.init( y_position,y_vel,initTime );
@@ -323,16 +328,20 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
     PID.init( y_attitude(seq(0,1)),y_omega,ref_attitude,initTime );
     PIDinner.init( y_omega(seq(0,1)),u,ref_omega,initTime );
 
+    // Initialize estimators
+    Estimator.init();
+
     // Run closed-loop simulation
     for (int i=0; i<Nsim; ++i)
     {
         // Drone has not hit ground
         if (Drone.state[8] <= 0.0)
         {
-            // Set position reference
+            /* Guidance and  */
             ref_pos = Reference.col(i);
 
-            // Control logic
+
+            /* Control Software */
             PIDpos.step( Drone.time,y_position,ref_pos );
             PIDpos.getU( ref_vel );
 
@@ -354,6 +363,8 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
             PIDinner.step( Drone.time,y_omega( seq(0,1) ),ref_omega );
             PIDinner.getU( u_serv );
 
+
+            /* Physical System */
             // Actuator            
             Servos.actuate( u_serv );
             Propellers.actuate( u_prop );
@@ -371,6 +382,9 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
             BNO055.Acceleration( y_acc );   
             BNO055.PositionVec( y_position );
             y_vel = Drone.earthVel;
+
+            /* Navigation Software */
+            Estimator.estimateState( u, ySystem, e );
         }
 
         // Save data
@@ -388,6 +402,8 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
         U(seq(3,4), i+1) = Servos.controlRate;
         U(seq(5,5), i+1) = Propellers.controlRate;
 
+        E(seq(0, 11), i+1) = e;
+
         T(0, i+1) = (i+1)*samplingTime;
 
         // Print status
@@ -401,6 +417,7 @@ void INDIpositionControl( dynamics& Drone, MatrixXf& Reference, float finalTime 
 
     // Export data
     saveToFile(X, X.rows(), X.cols(), "../data/state.csv");
+    saveToFile(E, E.rows(), E.cols(), "../data/estimate.csv");
     saveToFile(R, R.rows(), R.cols(), "../data/ref.csv");
     saveToFile(U, U.rows(), U.cols(), "../data/input.csv");
     saveToFile(T, T.rows(), T.cols(), "../data/time.csv");

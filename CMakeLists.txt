@@ -22,7 +22,7 @@ target_link_directories(${PROJECT_NAME}
     PUBLIC libraries/eigen
 )
 
-target_link_libraries(${PROJECT_NAME} eigen dynamics PIDcontroller INDIcontroller controller actuator filter saturator sensor helpers PIDattitudeControl)
+target_link_libraries(${PROJECT_NAME} eigen dynamics PIDcontroller INDIcontroller controller actuator filter estimator saturator sensor helpers PIDattitudeControl)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

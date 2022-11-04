@@ -141,3 +141,17 @@ target_link_directories(INDIcontroller
 target_link_libraries(INDIcontroller eigen)
 
 
+# Add estimator.cpp
+
+add_library(estimator estimator.cpp)
+
+target_include_directories(estimator
+    PUBLIC ${CMAKE_SOURCE_DIR}/libraries/eigen    
+)
+
+target_link_directories(estimator
+    PUBLIC ${CMAKE_SOURCE_DIR}/libraries/eigen
+)
+
+target_link_libraries(estimator eigen)
+
