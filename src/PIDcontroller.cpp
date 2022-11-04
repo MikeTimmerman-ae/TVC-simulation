@@ -24,6 +24,8 @@ PIDcontroller::PIDcontroller(   unsigned int _nInputs,
 	dGains = VectorXf::Zero( nInputs );
 
     iValue = VectorXf::Zero( nInputs );
+    dValue = VectorXf::Zero( nInputs );
+    pValue = VectorXf::Zero( nInputs );
     lastError = VectorXf::Zero( nInputs );
 }
 
@@ -38,6 +40,8 @@ PIDcontroller::PIDcontroller(   unsigned int _nInputs,
 	dGains = VectorXf::Zero( nInputs );
 
     iValue = VectorXf::Zero( nInputs );
+    dValue = VectorXf::Zero( nInputs );
+    pValue = VectorXf::Zero( nInputs );
     lastError = VectorXf::Zero( nInputs );
 }
 
@@ -148,16 +152,40 @@ void PIDcontroller::determineControlAction( const VectorXf& error, VectorXf& out
 
     output = VectorXf::Zero( nOutputs );
 
-    // Update integral value
+    // Calculate integral, derivative, proportional value
     for ( i=0; i<nInputs; ++i )
-        iValue(i) += error(i) * samplingTime;
+    {
+        iValue(i) += iGains(i)*(error(i) + lastError(i)) * samplingTime / 2.0;
+        dValue(i) = 2.0*dGains(i)/(2.0/dOmega + samplingTime) * (error(i) - lastError(i)) + (2.0/dOmega-samplingTime)/(2.0/dOmega+samplingTime)*dValue(i);
+        pValue(i) =  pGains(i) * error(i);
+    }
+    
+    // Anti wind-up on integral term
+    double upperLimitInt;
+    double lowerLimitInt;
+    for ( i=0; i<nInputs; ++i )
+    {
+        if (upperLimits(i) > pValue(i))
+            upperLimitInt = upperLimits(i) - pValue(i);
+        else
+            upperLimitInt = 0.0;
+        if (lowerLimits(i) < pValue(i))
+            lowerLimitInt = lowerLimits(i) - pValue(i);
+        else
+            lowerLimitInt = 0.0;
 
+        if (iValue(i) > upperLimitInt)
+            iValue(i) = upperLimitInt;
+        else if (iValue(i) < lowerLimitInt)
+            iValue(i) = lowerLimitInt;
+    }
+    
     // determine ouputs
     for ( i=0; i<nInputs; ++i )
     {
-        tmp  = pGains(i) * error(i);
-        tmp += iGains(i) * (iValue(i) - Kaw*uSatDiff(i)) * samplingTime;
-        tmp += dGains(i) * (error(i) - lastError(i)) / samplingTime;
+        tmp  = pValue(i);
+        tmp += iValue(i);
+        tmp += dValue(i);
 
         if ( nOutputs > 1  )
             output(i) = tmp;

@@ -113,7 +113,10 @@ class PIDcontroller : public controller
         VectorXf dGains;                // Derivative gains for all input components
 
         VectorXf iValue;                // Integrated value for all input components - used for integral term
+        VectorXf dValue;                // PID derivative term
+        VectorXf pValue;                // PID proportional term
         VectorXf lastError;             // Last error input - used for derivative term
 
+        double dOmega = 1;              // Cut-off freq. for low pas filter on derivative term [rad/s]
         double Kaw = 0.0;               // Anti wind-up gain
 };
