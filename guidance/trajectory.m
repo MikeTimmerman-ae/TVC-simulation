@@ -1,4 +1,28 @@
 clear;
+close all;
+clc;
+
+%% Generate trajectory (constant)
+
+t0 = 0.0; tf = 30.0;
+dt = 0.01;
+
+targetX = 1.0;
+targetY = 1.0;
+targetZ = -2.0;
+
+t = t0:dt:tf;
+rx = targetX*ones(tf/dt+1);
+ry = targetY*ones(tf/dt+1);
+rz = targetZ*ones(tf/dt+1);
+
+r = [rx ;ry ;rz];
+
+csvwrite("trajectory.csv", r);
+
+figure(1);
+plot(t,rx,t,ry,t,rz);
+
 
 %% Generate trajectory (parabolic)
 
@@ -18,10 +42,33 @@ r = [rx ;ry ;rz];
 
 csvwrite("trajectory.csv", r);
 
-figure(1);
+figure(2);
 plot(t,rx,t,ry,t,rz);
 
-%% Generate trajectory
+
+%% Generate trajectory (cubic)
+
+t0 = 0.0; tf = 30.0;
+dt = 0.01;
+
+targetX = -1;
+targetY = 3;
+targetZ = -5;
+
+t = t0:dt:tf;
+rx = -targetX/(tf/2)^3*t.^2.*(t-tf);
+ry = -targetY/(tf/2)^3*t.^2.*(t-tf);
+rz = -targetZ/(tf/2)^3*t.^2.*(t-tf)-0.05;
+
+r = [rx ;ry ;rz];
+
+csvwrite("trajectory.csv", r);
+
+figure(3);
+plot(t,rx,t,ry,t,rz);
+
+
+%% Generate trajectory (tan)
 
 t0 = 1.0; tf = 90.0;
 dt = 0.01;
@@ -45,7 +92,7 @@ t = 0:dt:2*tf;
 
 %csvwrite("trajectory.csv", r);
 
-figure(2);
+figure(4);
 plot(t,[rx1 rx2],t,[ry1 ry2],t,[rz1 rz2]);
 
 % %% Approximate trajectory by Nth-order polynomial
